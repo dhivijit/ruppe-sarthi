@@ -46,7 +46,7 @@ export default function SignUp() {
     }
 
     // Proceed with user signup
-    const response = await userSignUp(email, password) as SignUpResponse;
+    const response = await userSignUp(firstname, lastname, email, password) as SignUpResponse;
     if (response.success) {
       setSuccessMessage(response.message + " Redirecting to sign in page...");
       setTimeout(() => {

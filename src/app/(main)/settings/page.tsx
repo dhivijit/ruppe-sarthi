@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import React from "react";
 import { SessionProvider, useSession } from "next-auth/react";
 import Sidebar from "@/components/sidebar";
-import DashboardElement from "@/components/dashboard";
+import UserProfileEdit from "@/components/userprofileedit";
 import Link from "next/link";
 
 const metadata: Metadata = {
@@ -47,7 +47,7 @@ const DashboardPage: React.FC = () => {
                     <Sidebar userName={session?.user?.name || "John Doe"} className="fixed top-0 left-0 h-full w-[250px]" />
                     <main className="flex-1 ml-[250px] p-4 overflow-y-auto h-screen">
                         <div className="mt-2">
-                            <DashboardElement />
+                            <UserProfileEdit />
                         </div>
                     </main>
                 </div>

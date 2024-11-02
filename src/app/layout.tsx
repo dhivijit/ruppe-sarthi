@@ -1,5 +1,5 @@
 import "./globals.css";
-import Head from "next/head";
+import localFont from "next/font/local";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

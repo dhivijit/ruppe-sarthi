@@ -13,3 +13,29 @@ model userscreds {
   password String
 }
 
+model users {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  firstname String
+  lastname  String
+  email     String @unique
+}
+
+model expenses {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  amount       Int
+  description  String?
+  category     String
+  date         DateTime
+  creationDate DateTime
+  creatorId    String   @map("_creatorId") @db.ObjectId
+}
+
+model income {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  amount       Int
+  description  String?
+  category     String
+  date         DateTime
+  creationDate DateTime
+  creatorId    String   @map("_creatorId") @db.ObjectId
+}

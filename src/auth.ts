@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { signInSchema } from "@/lib/zod"; // Zod schema for validation
 import { userSignIn } from "@/lib/userSignIn"; // Function to authenticate user with credentials
+import { getUserData } from "@/lib/userData";
 
 export const authOptions = {
   providers: [
@@ -59,7 +60,14 @@ export const authOptions = {
       if (user) {
         token.id = user.id;
         token.email = user.email;
-        // token.name = user.name;
+
+        const data = await getUserData(user.email);
+
+        if (data.success) {
+          if (data.user) {
+            token.name = data.user.firstname + " " + data.user.lastname;
+          }
+        }
       }
       return token;
     },
@@ -69,7 +77,7 @@ export const authOptions = {
         session.user = {
           id: token.id as string,
           email: token.email as string,
-          // name: token.name as string,
+          name: token.name || "John Doe" as string,
         };
       }
       return session;

@@ -2,10 +2,8 @@
 
 import { db } from "@/lib/db";
 
-export async function userSignUp(email: string, password: string) {
+export async function userSignUp(firstname: string, lastname: string, email: string, password: string) {
     try {
-        console.log("Creating user with email:", email);
-
         // Check database connection and model
         if (!db || !db.userscreds) {
             throw new Error("Database connection or userscreds model is undefined");
@@ -18,12 +16,22 @@ export async function userSignUp(email: string, password: string) {
             },
         });
 
+
+
         const user = await db.userscreds.create({
             data: {
                 email: email,
                 password: password,
             },
         });
+
+        await db.users.create({
+            data: {
+                email: email,
+                firstname: firstname,
+                lastname: lastname
+            },
+        })
 
         return { success: true, message: "User successfully created" };
     } catch (error) {
