@@ -63,6 +63,8 @@ export default function FinanceTracker({ email }: { email: string }) {
 
     setTransactions([...transactions, newTransaction])
     resetForm()
+    // close form
+    setShowForm(false)
   }
 
 
