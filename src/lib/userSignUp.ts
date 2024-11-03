@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import bcrypt from "bcryptjs";
 
 export async function userSignUp(firstname: string, lastname: string, email: string, password: string) {
     try {
@@ -20,10 +21,13 @@ export async function userSignUp(firstname: string, lastname: string, email: str
             return { success: false, message: "User already exists" };
         }
 
+        // Encrypt password
+        const encryptedPassword = await await bcrypt.hash(password, 10);
+
         await db.userscreds.create({
             data: {
                 email: email,
-                password: password,
+                password: encryptedPassword,
             },
         });
 

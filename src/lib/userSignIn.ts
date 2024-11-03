@@ -1,4 +1,7 @@
+"use server"
+
 import { db } from "@/lib/db";
+import bcrypt from "bcryptjs";
 
 export async function userSignIn(email: string, password: string) {
     try {
@@ -10,11 +13,16 @@ export async function userSignIn(email: string, password: string) {
         const user = await db.userscreds.findUnique({
             where: {
                 email: email,
-                password: password,
             },
         });
 
-        if (!user) {
+        if (user) {
+            const passwordMatch = await await bcrypt.compare(password, user.password);
+
+            if (!passwordMatch) {
+                throw new Error("Invalid password");
+            }
+        } else {
             throw new Error("User not found");
         }
 
