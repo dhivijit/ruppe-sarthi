@@ -1,16 +1,15 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { LayoutDashboard, BarChart2, Users, Settings, LogOut, ChevronLeft, ChevronRight } from 'lucide-react'
+import { LayoutDashboard, BarChart2, Users, Settings, LogOut } from 'lucide-react'
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
 export default function Sidebar({ className, userName = "John Doe" }: { className?: string, userName?: string }) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const isCollapsed = false
   const [isTextVisible, setIsTextVisible] = useState(true)
   const router = useRouter()
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -24,7 +23,6 @@ export default function Sidebar({ className, userName = "John Doe" }: { classNam
 
   const handleLogout = () => {
     // Implement your logout logic here
-    console.log('Logging out...')
     router.push('/auth/logout') // Redirect to login page after logout
   }
 

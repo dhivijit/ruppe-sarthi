@@ -16,9 +16,11 @@ export async function userSignUp(firstname: string, lastname: string, email: str
             },
         });
 
+        if(existingUser) {
+            return { success: false, message: "User already exists" };
+        }
 
-
-        const user = await db.userscreds.create({
+        await db.userscreds.create({
             data: {
                 email: email,
                 password: password,

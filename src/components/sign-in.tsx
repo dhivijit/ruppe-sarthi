@@ -1,12 +1,10 @@
 "use client";
 import { signIn } from "next-auth/react";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState, Suspense } from "react";
 import { useSearchParams } from 'next/navigation';
 import Image from "next/image";
 
-import saarthiLogo from "@/assets/saarthi.png";
-
-export default function SignIn() {
+function SignInForm() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const searchParams = useSearchParams();
@@ -68,11 +66,19 @@ export default function SignIn() {
           {errorMessage && <p style={styles.errorMessage}>{errorMessage}</p>}
 
           <p className="mt-4 text-black">
-            Don't have an account? <a href="/auth/signup" className="text-blue-600 underline">Sign Up</a>
+            Don&apos;t have an account? <a href="/auth/signup" className="text-blue-600 underline">Sign Up</a>
           </p>
         </form>
       </div>
     </div>
+  );
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInForm />
+    </Suspense>
   );
 }
 

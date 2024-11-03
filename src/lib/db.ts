@@ -1,3 +1,4 @@
+/* eslint-disable padded-blocks */
 // lib/db.ts
 
 import { PrismaClient } from "@prisma/client";

@@ -16,9 +16,6 @@ export default function UserProfile() {
     const handleNameChange = (e: React.FormEvent) => {
         e.preventDefault()
         if (window.confirm('Are you sure you want to change your name?')) {
-            // Here you would typically call an API to update the user's name
-            console.log('Name changed to:', firstName, lastName)
-            // Reset fields after submission
             setFirstName('')
             setLastName('')
         }
@@ -32,8 +29,6 @@ export default function UserProfile() {
         }
         setPasswordError('')
         if (window.confirm('Are you sure you want to change your password?')) {
-            // Here you would typically call an API to update the user's password
-            console.log('Password changed')
             // Reset fields after submission
             setCurrentPassword('')
             setNewPassword('')

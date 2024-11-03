@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { SignOutfromAll } from "@/lib/signout";
 
-export default function loggingout() {
+export default function LoggingOut() {
 
     useEffect(() => {
         const signOutUser = async () => {

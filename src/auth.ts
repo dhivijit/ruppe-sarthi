@@ -1,5 +1,6 @@
+/* eslint-disable */
+
 import NextAuth from "next-auth";
-import { ZodError } from "zod";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { signInSchema } from "@/lib/zod"; // Zod schema for validation
 import { userSignIn } from "@/lib/userSignIn"; // Function to authenticate user with credentials
@@ -23,27 +24,22 @@ export const authOptions = {
           if (response.success) {
             const { user } = response;
             if (user) {
-              console.log("Sign-in successful:", user);
+              const data = await getUserData(user.email);
 
               // Return user object if credentials are valid
               return {
                 id: user.id,
                 email: user.email,
+                name: data.user ? data.user.firstname + " " + data.user.lastname : "Unknown User",
               };
             } else {
               throw new Error("User data is missing.");
             }
           } else {
-            console.log("Invalid credentials.");
             // Return null to indicate failed authorization
             return null;
           }
         } catch (error) {
-          if (error instanceof ZodError) {
-            console.error("Validation Error:", error.flatten().fieldErrors);
-            // Redirect to error page with a validation error message
-            throw new Error("Invalid input. Please check your email and password.");
-          }
           console.error("Authorization Error:", error);
           // Return null to trigger redirect to the error page
           throw new Error("Unable to sign in. Please try again.");
@@ -52,33 +48,34 @@ export const authOptions = {
     }),
   ],
   session: {
-    strategy: "jwt", // Use JWT to store session data
+    strategy: "jwt" as const,
   },
   callbacks: {
-    async jwt({ token, user }: { token: any; user?: any }) {
+    async jwt({ token, user }: { token: any; user:any }) {
       // Attach user information to the JWT token
       if (user) {
-        token.id = user.id;
+        // token.id = user.id;
         token.email = user.email;
+        token.expires=  Date.now() + 60 * 60 * 24 * 7 * 1000; // 7 days
 
         const data = await getUserData(user.email);
 
-        if (data.success) {
-          if (data.user) {
-            token.name = data.user.firstname + " " + data.user.lastname;
-          }
+        if (data.success && data.user) {
+          token.name = data.user.firstname + " " + data.user.lastname;
         }
       }
       return token;
     },
-    async session({ session, token }: { session: any; token: any }) {
+    async session({ session, token }: { session: {
+      expires: any; user?: { id: string; email: string; name?: string; } }; token: any }) {
       // Attach token data to session for access on the client side
       if (token) {
         session.user = {
           id: token.id as string,
           email: token.email as string,
-          name: token.name || "John Doe" as string,
+          name: (token.name || "John Doe") as string,
         };
+        session.expires = token.expires;
       }
       return session;
     },
@@ -86,11 +83,11 @@ export const authOptions = {
   pages: {
     signIn: "/auth/login", // Custom sign-in page
     error: "/auth/login?error=true", // Redirects to sign-in page with error query parameter
-  },
-  debug: process.env.NODE_ENV === "development", // Enable debug mode in development
+  }
 };
 
 // Export NextAuth configuration with handlers for pages/api/auth/[...nextauth].ts
-const { handlers, signIn, signOut, auth } = NextAuth(authOptions);
-export { handlers, signIn, signOut, auth };
+/* eslint-disable-next-line */
+const { handlers, signOut, auth } = NextAuth(authOptions);
+export { handlers, signOut, auth };
 export default auth;

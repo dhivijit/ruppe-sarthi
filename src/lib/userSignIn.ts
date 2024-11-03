@@ -2,8 +2,6 @@ import { db } from "@/lib/db";
 
 export async function userSignIn(email: string, password: string) {
     try {
-        console.log("Signing in user with email:", email);
-
         // Check database connection and model
         if (!db || !db.userscreds) {
             throw new Error("Database connection or userscreds model is undefined");

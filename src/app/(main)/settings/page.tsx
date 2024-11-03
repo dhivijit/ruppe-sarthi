@@ -1,15 +1,10 @@
 "use client";
 
-import { Metadata } from "next";
 import React from "react";
 import { SessionProvider, useSession } from "next-auth/react";
 import Sidebar from "@/components/sidebar";
 import UserProfileEdit from "@/components/userprofileedit";
 import Link from "next/link";
-
-const metadata: Metadata = {
-    title: "Dashboard | RuppeSarthi - Finance tracker for MSEs",
-};
 
 const DashboardPage: React.FC = () => {
     const { data: session, status } = useSession();

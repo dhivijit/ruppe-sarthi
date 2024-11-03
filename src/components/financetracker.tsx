@@ -1,3 +1,4 @@
+/* eslint-disable padded-blocks */
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
@@ -78,7 +79,6 @@ export default function FinanceTracker({ email }: { email: string }) {
       const expenses = await getExpenses(email)
       const incomes = await getIncome(email)
 
-      console.log(expenses, incomes)
       const allTransactions: any = []
       if (expenses.success && expenses.data) {
         // allTransactions.push(...expenses.data)
@@ -95,7 +95,7 @@ export default function FinanceTracker({ email }: { email: string }) {
     }
 
     fetchTransactions()
-  }, [])
+  }, [email])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -170,7 +170,11 @@ export default function FinanceTracker({ email }: { email: string }) {
                   </div>
                   <div>
                     <Label htmlFor="description">Description(optional)</Label>
-                    <Input id="description" type="text" placeholder="Enter description" />
+                    <Input id="description"
+                      type="text"
+                      placeholder="Enter description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)} />
                   </div>
                   <div>
                     <Label htmlFor="date">Date</Label>
