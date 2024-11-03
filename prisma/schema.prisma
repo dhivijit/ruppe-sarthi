@@ -18,11 +18,12 @@ model users {
   firstname String
   lastname  String
   email     String @unique
+  balance   Float
 }
 
 model expenses {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  amount       Int
+  amount       Float
   description  String?
   category     String
   date         DateTime
@@ -37,5 +38,26 @@ model income {
   category     String
   date         DateTime
   creationDate DateTime
+  creatorId    String   @map("_creatorId") @db.ObjectId
+}
+
+model incomeHistory{
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  date         String
+  amount       Float
+  creatorId    String   @map("_creatorId") @db.ObjectId
+}
+
+model expenseHistory{
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  date         String
+  amount       Float
+  creatorId    String   @map("_creatorId") @db.ObjectId
+}
+
+model balanceHistory{
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  date         String
+  amount       Float
   creatorId    String   @map("_creatorId") @db.ObjectId
 }

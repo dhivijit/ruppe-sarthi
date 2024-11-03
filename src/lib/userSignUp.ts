@@ -16,7 +16,7 @@ export async function userSignUp(firstname: string, lastname: string, email: str
             },
         });
 
-        if(existingUser) {
+        if (existingUser) {
             return { success: false, message: "User already exists" };
         }
 
@@ -27,13 +27,22 @@ export async function userSignUp(firstname: string, lastname: string, email: str
             },
         });
 
-        await db.users.create({
+        const userData = await db.users.create({
             data: {
                 email: email,
                 firstname: firstname,
-                lastname: lastname
+                lastname: lastname,
+                balance: 0,
             },
         })
+
+        await db.balanceHistory.create({
+            data: {
+                creatorId: userData.id,
+                amount: 0,
+                date: new Date().toISOString().split('T')[0],
+            }
+        });
 
         return { success: true, message: "User successfully created" };
     } catch (error) {

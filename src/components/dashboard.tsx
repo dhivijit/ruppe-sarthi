@@ -1,37 +1,67 @@
-import { Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import React, { useEffect, useState } from 'react';
-import { getIncomeData, getExpensesData } from '../lib/financetracking';
+'use client'
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+import React, { useEffect, useState } from 'react'
+import { Pie } from 'react-chartjs-2'
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement } from 'chart.js'
+import { getIncomeData, getExpensesData, getIncomeHistory, getBalanceHistory, getExpensesHistory } from '../lib/financetracking'
+import { getUserData } from '@/lib/userData'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { Separator } from "@/components/ui/separator"
+import { LineChart, Line as RechartsLine, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from "recharts";
+
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement)
 
 const Dashboard = ({ email }: { email: string }) => {
-    // Use useState to store expenses and income data
-    const [expenses, setExpenses] = useState<{ values: number[], labels: string[] }>({ values: [], labels: [] });
-    const [income, setIncome] = useState<{ values: number[], labels: string[] }>({ values: [], labels: [] });
+    const [expenses, setExpenses] = useState<{ values: number[], labels: string[] }>({ values: [], labels: [] })
+    const [income, setIncome] = useState<{ values: number[], labels: string[] }>({ values: [], labels: [] })
+    const [balance, setBalance] = useState<number>(0)
+    const [expensesHistory, setExpensesHistory] = useState<{ date: string, amount: number }[]>([])
+    const [incomeHistory, setIncomeHistory] = useState<{ date: string, amount: number }[]>([])
+    const [balanceHistory, setBalanceHistory] = useState<{ date: string, amount: number }[]>([])
 
     useEffect(() => {
         async function dataGetter() {
-            const expensesData = await getExpensesData(email);
-            const incomeData = await getIncomeData(email);
+            const expenseHistoryData = await getExpensesHistory(email);
+            if (expenseHistoryData.success) {
+                setExpensesHistory(expenseHistoryData.data)
+            }
 
-            // Set state for expenses and income, which will trigger a re-render
+            const incomeHistoryData = await getIncomeHistory(email);
+            if (incomeHistoryData.success) {
+                setIncomeHistory(incomeHistoryData.data)
+            }
+
+            const balanceHistoryData = await getBalanceHistory(email);
+            if (balanceHistoryData.success) {
+                setBalanceHistory(balanceHistoryData.data)
+            }
+        }
+        dataGetter()
+    }, [])
+
+    useEffect(() => {
+        async function dataGetter() {
+            const expensesData = await getExpensesData(email)
+            const incomeData = await getIncomeData(email)
+            const userData = await getUserData(email)
+
             setExpenses({
                 values: expensesData.values,
                 labels: expensesData.labels,
-            });
+            })
             setIncome({
                 values: incomeData.values,
                 labels: incomeData.labels,
-            });
+            })
+            setBalance(userData.user?.balance || 0)
         }
-        dataGetter();
-    }, [email]);
+        dataGetter()
+    }, [email])
 
-    const defaultColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'];
-    const noDataColors = ['#d3d3d3']; // Grey color for "No Data" chart
+    const defaultColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+    const noDataColors = ['#d3d3d3']
 
-    // Function to get chart data
     const getChartData = (data: { values: number[], labels: string[] }) => ({
         labels: data.labels.length > 0 ? data.labels : ['No Data'],
         datasets: [
@@ -41,9 +71,8 @@ const Dashboard = ({ email }: { email: string }) => {
                 hoverBackgroundColor: data.values.length > 0 ? defaultColors : noDataColors,
             },
         ],
-    });
+    })
 
-    // Options for displaying labels on each chart
     const options = {
         plugins: {
             legend: {
@@ -54,62 +83,101 @@ const Dashboard = ({ email }: { email: string }) => {
                 enabled: true,
             },
         },
-    };
+    }
+
+    const LineChartComponent = ({ data, title, color }: { data: { date: string, amount: number }[], title: string, color: string }) => (
+        <Card className="w-full">
+            <CardHeader>
+                <CardTitle>{title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ChartContainer
+                    config={{
+                        amount: {
+                            label: "Amount",
+                            color: color,
+                        },
+                    }}
+                    className="h-[175px]" // Reduced height to make the graph smaller
+                >
+                    {data.length > 0 ? (
+                        <LineChart
+                            data={data}
+                            margin={{ top: 20, right: 20, left: -30, bottom: 20 }} // Adjusted margins to shift chart to the right
+                        >
+                            {/* X and Y Axes */}
+                            <XAxis dataKey="date" stroke="#6b7280" padding={{ left: 10, right: 10 }} /> {/* Adds padding on X-axis */}
+                            <YAxis
+                                stroke="#6b7280"
+                                domain={['dataMin', 'dataMax + 20']} // Adds padding on top of Y-axis to prevent clipping
+                            />
+
+                            {/* Grid lines */}
+                            <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
+
+                            {/* Line with clip to keep it within bounds */}
+                            <RechartsLine
+                                type="monotone"
+                                dataKey="amount"
+                                stroke="#1f2937"
+                                strokeWidth={2}
+                                dot={{ fill: "#1f2937" }}
+                            />
+
+                            {/* Tooltip */}
+                            <RechartsTooltip content={<ChartTooltipContent />} />
+                        </LineChart>
+                    ) : (
+                        <div className="flex h-full items-center justify-center text-muted-foreground">
+                            No data available
+                        </div>
+                    )}
+                </ChartContainer>
+            </CardContent>
+        </Card>
+    )
 
     return (
         <>
             <header className="mb-8">
                 <h1 className="font-title text-3xl text-neutral-950">Dashboard</h1>
             </header>
-            <div style={{ display: 'flex', justifyContent: 'space-around', padding: '20px' }}>
-                <div style={{ width: '250px', height: '250px', textAlign: 'center', position: 'relative' }}>
-                    <h4>Expenses by Category</h4>
+
+            <header className="mb-8">
+                <h3 className="font-title text-xl text-neutral-950">Your current balance is ${balance}</h3>
+            </header>
+
+            <div className="flex justify-around mb-8">
+                <div className="w-[250px] h-[250px] text-center relative">
+                    <h4 className="mb-2">Expenses by Category</h4>
                     <Pie data={getChartData(expenses)} options={options} />
                     {expenses.values.length === 0 && (
-                        <div
-                            style={{
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                color: '#666',
-                                fontWeight: 'bold',
-                                fontSize: '16px',
-                                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                                padding: '10px',
-                                borderRadius: '50%',
-                            }}
-                        >
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/80 text-sm font-bold text-gray-500">
                             No Data Available
                         </div>
                     )}
                 </div>
 
-                <div style={{ width: '250px', height: '250px', textAlign: 'center', position: 'relative' }}>
-                    <h4>Income by Category</h4>
+                <div className="w-[250px] h-[250px] text-center relative">
+                    <h4 className="mb-2">Income by Category</h4>
                     <Pie data={getChartData(income)} options={options} />
                     {income.values.length === 0 && (
-                        <div
-                            style={{
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                color: '#666',
-                                fontWeight: 'bold',
-                                fontSize: '16px',
-                                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                                padding: '10px',
-                                borderRadius: '50%',
-                            }}
-                        >
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/80 text-sm font-bold text-gray-500">
                             No Data Available
                         </div>
                     )}
                 </div>
             </div>
-        </>
-    );
-};
 
-export default Dashboard;
+            <Separator className="my-8" />
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <LineChartComponent data={expensesHistory} title="Expenses Over Time" color="black" />
+                <LineChartComponent data={incomeHistory} title="Income Over Time" color="black" />
+                <LineChartComponent data={balanceHistory} title="Balance Over Time" color="black" />
+            </div>
+        </>
+    )
+}
+
+export default Dashboard

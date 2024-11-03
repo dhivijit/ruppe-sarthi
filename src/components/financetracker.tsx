@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
 import { getExpenses, createExpense, getIncome, createIncome } from "@/lib/financetracking";
+import { getUserData } from '@/lib/userData';
 
 type Transaction = {
   id?: string
@@ -33,6 +34,7 @@ export default function FinanceTracker({ email }: { email: string }) {
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   const [description, setDescription] = useState('')
   const overlayRef = useRef<HTMLDivElement>(null)
+  const [balance, setBalance] = useState<number>(0);
 
   const handleSubmit = async () => {
     const newTransaction: Transaction = {
@@ -45,12 +47,14 @@ export default function FinanceTracker({ email }: { email: string }) {
 
     if (formType === 'expense') {
       if (await createExpense(email, newTransaction.amount, newTransaction.category, newTransaction.date, newTransaction.description)) {
+        setBalance(balance - newTransaction.amount)
         alert('Expense created successfully')
       } else {
         alert('Error creating expense')
       }
     } else {
       if (await createIncome(email, newTransaction.amount, newTransaction.category, newTransaction.date, newTransaction.description)) {
+        setBalance(balance + newTransaction.amount)
         alert('Income created successfully')
       } else {
         alert('Error creating income')
@@ -73,6 +77,15 @@ export default function FinanceTracker({ email }: { email: string }) {
     setFormType(type)
     setShowForm(true)
   }
+
+  useEffect(() => {
+    async function dataGetter() {
+      const userData = await getUserData(email);
+      console.log(userData)
+      setBalance(userData.user?.balance || 0);
+    }
+    dataGetter();
+  }, [email]);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -120,6 +133,7 @@ export default function FinanceTracker({ email }: { email: string }) {
   return (
     <div className="container mx-auto p-4 space-y-8">
       <h1 className="text-3xl font-bold mb-4">Finance Tracker</h1>
+      <h3 className="font-title text-xl text-neutral-950">Your current balance is ${balance}</h3>
 
       <div className="flex flex-wrap gap-4 mb-4">
         <Button onClick={() => openForm('expense')}>
