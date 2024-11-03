@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-export default function UserProfile() {
+import { getUserData, changeName } from "@/lib/userData";
+
+export default function UserProfile({ email }: { email: string }) {
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
     const [currentPassword, setCurrentPassword] = useState('')
@@ -13,11 +15,22 @@ export default function UserProfile() {
     const [confirmNewPassword, setConfirmNewPassword] = useState('')
     const [passwordError, setPasswordError] = useState('')
 
-    const handleNameChange = (e: React.FormEvent) => {
+    useEffect(() => {
+        async function fetchData() {
+            const userData = await getUserData(email)
+            if (userData.success) {
+                setFirstName(userData.user.firstname)
+                setLastName(userData.user.lastname)
+            }
+        }
+        fetchData()
+    }, [email])
+
+    const handleNameChange = async (e: React.FormEvent) => {
         e.preventDefault()
         if (window.confirm('Are you sure you want to change your name?')) {
-            setFirstName('')
-            setLastName('')
+            await changeName(email, firstName, lastName)
+            window.location.reload();
         }
     }
 
