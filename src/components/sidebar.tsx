@@ -16,7 +16,6 @@ export default function Sidebar({ className, userName = "John Doe" }: { classNam
 
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, href: '/' },
-    { name: 'Analytics', icon: BarChart2, href: '/analytics' },
     { name: 'Track Finances', icon: Users, href: '/finance' },
     { name: 'Settings', icon: Settings, href: '/settings' },
   ]
