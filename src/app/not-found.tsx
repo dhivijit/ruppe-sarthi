@@ -21,7 +21,7 @@ export default function NotFound() {
         </CardHeader>
         <CardContent>
           <p className="text-center text-gray-600 dark:text-gray-400">
-            Oops! The page you're looking for doesn't exist. It might have been moved or deleted.
+            Oops! The page you&apos;re looking for doesn&apos;t exist. It might have been moved or deleted.
           </p>
         </CardContent>
         <CardFooter className="flex justify-center">

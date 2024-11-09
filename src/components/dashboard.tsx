@@ -38,7 +38,7 @@ const Dashboard = ({ email }: { email: string }) => {
             }
         }
         dataGetter()
-    }, [])
+    }, [email])
 
     useEffect(() => {
         async function dataGetter() {
